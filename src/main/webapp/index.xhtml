@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>CRUD Clientes</title>
+    </h:head>
+    <h:body>
+<!-- declaracao do formulario-->
+        <h:form id="form_cliente">
+            <!-- componente que mostra msg -->
+            <p:growl/>
+            <!-- componente que define o focu, o atributo context define a raiz do focu-->
+            <p:focus context="@form"/>
+            <!--###################################################FORMUALIO CLIENTE###############################################-->
+            <!-- componente de painel-->
+            <p:panel header="Formulario Cliente">
+                <!-- componente que tabula outros componentes,
+                o atributo columns define quantidade de colunas-->
+                <p:panelGrid columns="2">
+                    <!-- componente de rotulo,
+                    o atributo for eh vinculado ao id de outro componente-->
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <!-- componente campo de texto-->
+                    <p:inputText id="nome"
+                                 size="50"
+                                 maxlength="100"
+                                 required="true"
+                                 requiredMessage="digite o nome do cliente"
+                                 value="#{clienteBean.cliente.nome}"/>
+
+                    <p:outputLabel value="Nascimento" for="nascimento"/>
+                    <!-- componente de dadta,
+                    pattern define o padrao da data,
+                    a tag f:convertdatetime convert a string em um date-->
+                    <p:calendar id="nascimento"
+                                pattern="dd/MM/yyyy"
+                                mask="99/99/9999"
+                                required="true"
+                                requiredMessage="selecione a data de nascimento do cliente"
+                                value="#{clienteBean.cliente.nascimento}">
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </p:calendar>
+
+                    <p:outputLabel value="Renda" for="renda"/>
+                    <p:inputText id="renda"
+                                 size="15"
+                                 maxlength="15"
+                                 required="true"
+                                 requiredMessage="digite o nome do cliente"
+                                 value="#{clienteBean.cliente.renda}">
+                        <f:convertNumber maxFractionDigits="2" minFractionDigits="2"/>
+                    </p:inputText> 
+
+                    <p:outputLabel value="Status" for="status"/>
+                    <!-- componente de checkbox booleano-->
+                    <p:selectBooleanCheckbox id="status"
+                                             required="true"
+                                             requiredMessage="selecione o status do cliente"
+                                             value="#{clienteBean.cliente.status}"/>
+
+
+                    <!-- componente de botao,
+                    o atributo update atualiza todos os componentes que estao o form raiz,
+                    atributo oncomplete executa um metodo javascript,
+                    atributo actionlistenner executa um metodo java-->
+                    <p:commandButton value="#{clienteBean.cliente.id eq null?'Salvar':'Atualizar'}"
+                                     update="@form"
+                                     oncomplete="atualizaAlturaTabela(500);"
+                                     actionListener="#{clienteBean.salvarCliente()}"/>
+                    <!-- componente panelgroup,agrupa varios componentes em uma msm coluna-->
+                    <h:panelGroup>
+                        <p:commandButton value="Excluir"
+                                         update="@form"
+                                         immediate="true"
+                                         oncomplete="atualizaAlturaTabela(500);"
+                                         disabled="#{clienteBean.cliente.id eq null}"
+                                         actionListener="#{clienteBean.excluir()}"/>
+
+                      
+                        <p:spacer width="50" height="0"/>
+
+                        <p:commandButton value="Novo"
+                                         update="@form"
+                                         immediate="true"
+                                         oncomplete="atualizaAlturaTabela(500);"
+                                         disabled="#{clienteBean.cliente.id eq null}"
+                                         actionListener="#{clienteBean.novo()}"/>
+                    </h:panelGroup>
+
+
+                </p:panelGrid>
+            </p:panel>
+            <!--##################################################################################################-->
+            <p:panel header="Pesquisa de Cliente">
+
+                <p:panelGrid columns="5" id="pesquisa">
+
+                    <p:outputLabel value="Coluna Busca" for="colunabusca"/>
+                    <p:selectOneMenu id="colunabusca"
+                                     value="#{clienteBean.colunaBusca}">
+                        <f:selectItem itemValue="nome" itemLabel="Nome"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Valor Busca" for="valorbusca"/>
+                    <p:inputText id="valorbusca"
+                                 size="50"
+                                 value="#{clienteBean.valorBusca}"
+                                 maxlength="100"/>
+
+                    <p:commandButton value="Pesquisar"
+                                     process=":form_cliente:pesquisa"  
+                                     update=":form_cliente:lista"
+                                     oncomplete="atualizaAlturaTabela(500);"
+                                     actionListener="#{clienteBean.pesquisar()}"/>
+
+                </p:panelGrid>
+
+
+                <p:dataTable value="#{clienteBean.lista}"
+                             var="cliente"
+                             id="lista"
+                             emptyMessage="nenhum cliente"
+                             scrollable="true"
+                             scrollHeight="300">
+
+
+                    <p:column headerText="ID">
+                        <h:outputText value="#{cliente.id}"/>
+                    </p:column>
+
+                    <p:column headerText="Nome">
+                        <h:outputText value="#{cliente.nome}"/>
+                    </p:column>
+
+                    <p:column headerText="Nascimento">
+                        <h:outputText value="#{cliente.nascimento}">
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Renda">
+                        <h:outputText value="#{cliente.renda}">
+                            <f:convertNumber maxFractionDigits="2" minFractionDigits="2"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Status">
+                        <h:outputText value="#{cliente.status eq true?'Ativo':'Inativo'}"/>
+                    </p:column>
+
+                    <p:column>
+                        <p:commandButton value="Selecionar"
+                                         update="@form"
+                                         immediate="true"
+                                         oncomplete="atualizaAlturaTabela(500);"
+                                         actionListener="#{clienteBean.selecionar(cliente)}">
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </p:panel>
+
+
+
+        </h:form>
+
+    </h:body>
+    <script>
+        $(document).ready(function () {
+            atualizaAlturaTabela(465);
+        });
+
+        function atualizaAlturaTabela(altura) {
+            var o = $(document).height() - altura;
+            $('.ui-datatable-scrollable-body').css('height', o);
+
+        }
+    </script>
+</html>
+
