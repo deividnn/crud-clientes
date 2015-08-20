@@ -1,0 +1,7 @@
+controladores\ClienteController.class
+util\DAO.class
+util\HibernateUtil.class
+util\HibernateDAO.class
+beans\ClienteBean.class
+entidades\Cliente.class
+util\Util.class
